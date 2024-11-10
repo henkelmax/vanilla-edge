@@ -15,6 +15,7 @@ A vanilla compatible Minecraft modpack, aimed at convenience and frustration-fre
 ## Non-Gameplay Changes
 
 - In-game voice chat
+- Waypoints
 - 3D skin layers
 - Better client-side render distance with Bobby
 - Enhanced camera controls with zooming and free look
