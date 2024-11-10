@@ -1,0 +1,44 @@
+name: Build and Publish
+on:
+  release:
+    types: [ published ]
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout modpack repo
+        uses: actions/checkout@v4
+        with:
+          path: modpack
+      - name: Download vanilla-plus mod
+        uses: robinraju/release-downloader@v1
+        with:
+          repository: henkelmax/vanilla-plus
+          latest: true
+          fileName: "*.jar"
+          out-file-path: modpack/overrides/mods
+          token: ${{ secrets.GH_PAT }}
+      - name: Inject modpack version
+        run: jq --arg value "${{ github.event.release.tag_name }}" '.versionId = $value' modpack/modrinth.index.json > modrinth.index.json && mv modrinth.index.json modpack/modrinth.index.json
+      - name: Download fabric server launcher
+        run: curl -o modpack/server-overrides/server.jar https://meta.fabricmc.net/v2/versions/loader/1.21.1/0.16.9/1.0.1/server/jar
+      - name: Pack mrpack
+        run: cd modpack && zip -r ../vanilla-edge.mrpack modrinth.index.json overrides/ server-overrides/
+      - name: Upload mrpack
+        uses: actions/upload-artifact@v4
+        with:
+          name: vanilla-edge
+          path: vanilla-edge.mrpack
+      - name: Upload to Modrinth
+        uses: RubixDev/modrinth-upload@v1
+        with:
+          token: ${{ secrets.MODRINTH_TOKEN }}
+          file_path: vanilla-edge.mrpack
+          name: Vanilla Edge ${{ github.event.release.tag_name }}
+          version: ${{ github.event.release.tag_name }}
+          changelog: ${{ github.event.release.body }}
+          game_versions: 1.21.1
+          loaders: fabric
+          release_type: alpha
+          featured: true
+          project_id: P4dtDG2q
