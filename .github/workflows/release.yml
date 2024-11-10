@@ -18,6 +18,14 @@ jobs:
           fileName: "*.jar"
           out-file-path: modpack/overrides/mods
           token: ${{ secrets.GH_PAT }}
+      - name: Download coordinate-hud mod
+        uses: robinraju/release-downloader@v1
+        with:
+          repository: henkelmax/coordinate-hud
+          latest: true
+          fileName: "*.jar"
+          out-file-path: modpack/overrides/mods
+          token: ${{ secrets.GH_PAT }}
       - name: Inject modpack version
         run: jq --arg value "${{ github.event.release.tag_name }}" '.versionId = $value' modpack/modrinth.index.json > modrinth.index.json && mv modrinth.index.json modpack/modrinth.index.json
       - name: Download fabric server launcher
